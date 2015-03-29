@@ -1,9 +1,10 @@
 from flask import Flask
+from sensors import getTemp
 app = Flask(__name__)
 
 @app.route("/")
 def hello():
-	return "Hello, this is your chicken coop speaking"
+	return "Temp is " + str(getTemp())
 
 if __name__ == "__main__":
-	app.run(host='0.0.0.0')
+	app.run(debug=True)
