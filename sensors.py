@@ -28,4 +28,4 @@ def getTemp():
 
 while True:
     temp = sensor.readTemp()
-    print 'Temp is {1:0.3F}*F'.format(temp, c_to_f(temp))
+#    print 'Temp is {1:0.3F}*F'.format(temp, c_to_f(temp))
