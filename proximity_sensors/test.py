@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 
 #pin numbers
 proximity1Pin = 23
@@ -27,8 +28,24 @@ def proximity1Low(proximity1Pin):
 	#proximity1 hit first
 	if proximity1 > proximity2:
 		#wait for chicken to hit proximity2:
-		while proximity1 > proximity2:
-			
+		t = time.clock()
+		while True:
+			if proximity2 == 1:
+				break
+			if (t-time.clock()) >= 10:
+				break
+
+		#wait for the High functions to reset global variables
+		t = time.clock()
+		while True:
+			if ( proximity1 == 0 && proximity2 == 0 ):
+				chickenCount -= 1
+				break
+			if (t-time.clock()) >= 10:
+				break
+				
+
+
 		#case chicken hits proximity2 => wait for both sensors to read high, decrement chickenCount
 		#case chicken walks away =>
 		#case false detection =>
@@ -38,7 +55,25 @@ def proximity2Low(proximity2Pin):
 
 	#proximity2 hit first
 	if proximity2 > proximity1:
-		#wait for chicken to hit proximity1--maybe ~5s
+		#wait for chicken to hit proximity1:
+		t = time.clock()
+		while True:
+			if proximity1 == 1:
+				break
+			if (t-time.clock()) >= 10:
+				break
+
+		#wait for the High functions to reset global variables
+		t = time.clock()
+		while True:
+			if ( proximity1 == 0 && proximity2 == 0 ):
+				chickenCount += 1
+				break
+			if (t-time.clock()) >= 10:
+				break
+
+
+
 		#case chicken hits proximity1 => wait for both sensors to read high, increment chickenCount
 		#case chicken walks away =>
 		#case false detection =>
