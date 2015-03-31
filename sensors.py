@@ -46,8 +46,8 @@ def proximity2(proximity2Pin):
 		print "Object detected at sensor 2"
 
 #proximity
-GPIO.add_event_detect(proximity1Pin, GPIO.BOTH, callback=proximity1)
-GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2)
+GPIO.add_event_detect(proximity1Pin, GPIO.BOTH, callback=proximity1, bouncetime=300)
+GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2, bouncetime=300)
 
 
 
