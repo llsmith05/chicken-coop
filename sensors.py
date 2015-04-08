@@ -5,9 +5,8 @@ import Adafruit_MCP9808.MCP9808 as MCP9808
 #pin numbers
 proximity1Pin = 20
 proximity2Pin = 16
-lightPin = 26
-doorOpenPin = 25 #check that this is accurate
-doorClosePin = 11 #same here
+doorOpenPin = 17 #check that this is accurate
+doorClosePin = 18 #same here
 
 # set pins to use GPIO numbering
 GPIO.setmode(GPIO.BCM)
@@ -16,7 +15,6 @@ GPIO.setmode(GPIO.BCM)
 #pin setup
 GPIO.setup(proximity1Pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(proximity2Pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(lightPin, GPIO.IN)
 GPIO.setup(doorOpenPin, GPIO.OUT)
 GPIO.setup(doorClosePin, GPIO.OUT)
 
@@ -40,26 +38,115 @@ def getTemp():
         return temp
 
 #callback function for sensor1
-def proximity1(proximity1Pin):
+def proximity1_callback(proximity1Pin):
+	global proximity1
+	global proximity2
+	global chickenCount
+	#object not detected
 	if GPIO.input(proximity1Pin):
-		print "No object at sensor 1"
-	else:
-		print "Object detected at sensor 1"
-def proximity2(proximity2Pin):
-	if GPIO.input(proximity2Pin):
-		print "No object at sensor 2"
-	else:
-		print "Object detected at sensor 2"
+		#reset the global variable 
+		proximity1 -= 1
+		print "decrementing proximity1"
 
-def lightStatus(lightPin):
-	#Read light level and return 1 for dark, 0 for light
-	return 1
+	#object detected
+	else:
+		#increment the proximity 1 variable
+		proximity1 += 1
+		print "incrementing proximity1"
+		exception = False
+
+		#proximity1 hit first
+		if proximity1 > proximity2:
+			#wait for chicken to hit proximity2:
+			print "waiting for proximity2 to trigger..."
+			t = time.clock()
+			while True:
+				if proximity2 == 1:
+					print "proximity 2 triggered"
+					print "now waiting for both sensors to reset"
+					break
+				#only wait for 10s, and throw an exception
+				if (t-time.clock()) >= 10:
+					exception = True
+					print "you took too long to activate proximity2, throwing exception"
+					break
+
+			#wait for the High functions to reset global variables
+			t = time.clock()
+			while True:
+				#don't do anything to chickenCount if there was an exception
+				if ( exception ):
+					print "exception detected... exiting prosimity1 callback function"
+					break
+				#wait for both sensors to reset their variables
+				if ( proximity1 == 0 and proximity2 == 0 ):
+					#this indicates a chicken leaving
+					print "both sensors were reset! decrementing chickencount"
+					chickenCount -= 1
+					break
+				#only wait for 10s, throw exception
+				if (t-time.clock()) >= 10:
+					exception = True
+					print "you took too long to reset the sensors, throwing exception"
+					break
+		
+def proximity2_callback(proximity2Pin):
+	global proximity1
+	global proximity2
+	global chickenCount
+	#object not detected
+	if GPIO.input(proximity2Pin):
+		#reset the global variable >>> this is probably bad
+		proximity2 -= 1
+		print "decrementing proximity2"
+
+	#object detected
+	else:
+		#increment the proximity 2 variable
+		proximity2 += 1
+		print "incrementing proximity 2"
+		exception = False
+
+		#proximity2 hit first
+		if proximity2 > proximity1:
+			#wait for chicken to hit proximity1:
+			print "waiting for proximity1 to trigger..."
+			t = time.clock()
+			while True:
+				if proximity1 == 1:
+					print "proximity 1 triggered"
+					print "now waiting for both sensors to reset"
+					break
+				#only wait for 10s, and throw an exception
+				if (t-time.clock()) >= 10:
+					exception = True
+					print "you took too long to activate proximity1, throwing exception"
+					break
+
+			#wait for the High functions to reset global variables
+			t = time.clock()
+			while True:
+				#don't do anything to chickenCount if there was an exception
+				if ( exception ):
+					print "exception detected in proximity2 callback...exiting"
+					break
+				#wait for both sensors to reset their variables
+				if ( proximity1 == 0 and proximity2 == 0 ):
+					#this indicates a chicken entering
+					print "both variables were reset, incrementing chickenCount"
+					chickenCount += 1
+					break
+				#only wait for 10s, throw exception
+				if (t-time.clock()) >= 10:
+					exception = True
+					print "took too long to reset the sensors...exiting proximity2 callback"
+					break
 
 def closeDoor(doorClosePin):
 	#turn on door motor
 	GPIO.output(doorClosePin,1)
 	#wait a couple seconds for it to complete
-	time.sleep(2.0)
+	time.sleep(1.0)
 	#turn off motor
 	GPIO.output(doorClosePin,0)
 	return None
@@ -68,24 +155,24 @@ def openDoor(doorOpenPin):
 	#turn on door motor
 	GPIO.output(doorOpenPin,1)
 	#wait a couple seconds for it to complete
-	time.sleep(2.0)
+	time.sleep(1.0)
 	#turn off motor
 	GPIO.output(doorOpenPin,0)
 	return None
 
 #proximity
-GPIO.add_event_detect(proximity1Pin, GPIO.BOTH, callback=proximity1, bouncetime=300)
-GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2, bouncetime=300)
+GPIO.add_event_detect(proximity1Pin, GPIO.BOTH, callback=proximity1_callback, bouncetime=300)
+GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2_callback, bouncetime=300)
 
 
 
 while True:
-	if (chickenCount == 5 && lightStatus() == 1 && doorStatus = 0)
+	if (chickenCount == 5 and doorStatus == 0):
 		closeDoor()
 		doorStatus = 1
-	if (lightStatus() == 0 && doorStatus = 1)
+	if (doorStatus == 1):
 		openDoor()
 		doorStatus = 0
-	time.sleep(60.0)
+	time.sleep(10.0)
 
 GPIO.cleanup()
