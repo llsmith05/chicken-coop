@@ -56,7 +56,7 @@ def proximity1_callback(proximity1Pin):
 		exception = False
 
 		#proximity1 hit first
-		if (proximity1 == True && proximity2 == False):
+		if (proximity1 == True and proximity2 == False):
 			#wait for chicken to hit proximity2:
 			print "waiting for proximity2 to trigger..."
 			t = time.time()
@@ -66,7 +66,7 @@ def proximity1_callback(proximity1Pin):
 					print "now waiting for both sensors to reset"
 					break
 				#only wait for 10s, and throw an exception
-				if (t-time.time()) >= 10:
+				if (time.time()-t) >= 10:
 					exception = True
 					print "you took too long to activate proximity2, throwing exception"
 					break
@@ -79,13 +79,13 @@ def proximity1_callback(proximity1Pin):
 					print "exception detected... exiting prosimity1 callback function"
 					break
 				#wait for both sensors to reset their variables
-				if ( proximity1 == False && proximity2 == False ):
+				if ( proximity1 == False and proximity2 == False ):
 					#this indicates a chicken leaving
 					print "both sensors were reset! decrementing chickencount"
 					chickenCount -= 1
 					break
 				#only wait for 10s, throw exception
-				if (t-time.time()) >= 10:
+				if (time.time()-t) >= 10:
 					exception = True
 					print "you took too long to reset the sensors, throwing exception"
 					break
@@ -107,7 +107,7 @@ def proximity2_callback(proximity2Pin):
 		exception = False
 
 		#proximity2 hit first
-		if (proximity2 == True && proximity1 == False):
+		if (proximity2 == True and proximity1 == False):
 			#wait for chicken to hit proximity1:
 			print "waiting for proximity1 to trigger..."
 			t = time.time()
@@ -117,7 +117,7 @@ def proximity2_callback(proximity2Pin):
 					print "now waiting for both sensors to reset"
 					break
 				#only wait for 10s, and throw an exception
-				if (t-time.time()) >= 10:
+				if (time.time()-t) >= 10:
 					exception = True
 					print "you took too long to activate proximity1, throwing exception"
 					break
@@ -130,13 +130,13 @@ def proximity2_callback(proximity2Pin):
 					print "exception detected in proximity2 callback...exiting"
 					break
 				#wait for both sensors to reset their variables
-				if ( proximity1 == False && proximity2 == False ):
+				if ( proximity1 == False and proximity2 == False ):
 					#this indicates a chicken entering
 					print "both variables were reset, incrementing chickenCount"
 					chickenCount += 1
 					break
 				#only wait for 10s, throw exception
-				if (t-time.time()) >= 10:
+				if (time.time()-t) >= 10:
 					exception = True
 					print "took too long to reset the sensors...exiting proximity2 callback"
 					break
@@ -166,12 +166,18 @@ GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2_callback, bo
 
 
 while True:
-	if (chickenCount == 5 and doorStatus == 0):
-		closeDoor()
-		doorStatus = 1
+	print "Beginning count check loop"
+	print "Current chicken count is " + str(chickenCount)
 	if (doorStatus == 1):
-		openDoor()
+		print "Opening door"
+		openDoor(doorOpenPin)
 		doorStatus = 0
+
+	if (chickenCount >= 5 and doorStatus == 0):
+		print "Closing door"
+		closeDoor(doorClosePin)
+		doorStatus = 1
 	time.sleep(10.0)
 
-GPIO.cleanup()
+except KeyboardInterrupt:
+	GPIO.cleanup()
