@@ -195,6 +195,11 @@ RPIO.add_interrupt_callback(proximity1Pin, proximity1_callback, threaded_callbac
 RPIO.add_interrupt_callback(proximity2Pin, proximity2_callback, threaded_callback=True, debounce_timeout_ms=200)
 
 
+#################################
+#NOT SURE WHERE THIS SHOULD GO
+RPIO.wait_for_interrupts(threaded=True)
+
+
 @app.route("/")
 def coophome():
 	#get temperature
