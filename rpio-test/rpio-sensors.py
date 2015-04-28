@@ -33,9 +33,9 @@ def gpio_callback(gpio_id, val):
 #	print "proximity1: " + str(proximity1)
 
 def proximity2_callback(gpio_id, val):
-	proximity2 += 1
+	#proximity2 += 1
 	print("gpio %s: %s\n" % (gpio_id, val))
-	print "proximity2: " + str(proximity2)
+	#print "proximity2: " + str(proximity2)
 
 
 
@@ -46,10 +46,10 @@ def findthepin():
 		i = x.pop()
 		print i
 		RPIO.setup(i, RPIO.IN, pull_up_down=RPIO.PUD_UP)
-		RPIO.add_interrupt_callback(i, gpio_callback, threaded_callback=True, debounce_timeout_ms=10)
+		RPIO.add_interrupt_callback(i, gpio_callback, threaded_callback=True, debounce_timeout_ms=100)
 
 
-RPIO.add_interrupt_callback(proximity2Pin, proximity2_callback, threaded_callback=True, debounce_timeout_ms=10)
+RPIO.add_interrupt_callback(proximity2Pin, proximity2_callback, threaded_callback=True, debounce_timeout_ms=300)
 
 
 
