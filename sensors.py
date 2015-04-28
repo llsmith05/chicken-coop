@@ -1,6 +1,9 @@
 import RPi.GPIO as GPIO
 import time
 import Adafruit_MCP9808.MCP9808 as MCP9808
+from flask import Flask, render_template, url_for
+
+app = Flask(__name__)
 
 #pin numbers
 proximity1Pin = 20
@@ -19,12 +22,13 @@ GPIO.setup(doorOpenPin, GPIO.OUT)
 GPIO.setup(doorClosePin, GPIO.OUT)
 
 #helpful global variables
-proximity1 = 0
-proximity2 = 0
-chickenCount = 0
-doorStatus = 0
+proximity1 = 0 #0 or 1 if sensor is triggered
+proximity2 = 0 #0 or 1 if sensor is triggered
+chickenCount = 0 #current number of chickens in coop
+doorStatus = 0 #0 for closed, 1 for open
 
 #convert C to F for temp sensor
+#Returns as Fahrenheit int
 def c_to_f(c):
         return c * 9.0 / 5.0 + 32.0
 
@@ -33,6 +37,7 @@ sensor = MCP9808.MCP9808()
 sensor.begin()
 
 #read temp sensor
+#returns temp in Celsius as int
 def getTemp():
         temp = sensor.readTempC()
         return temp
@@ -145,7 +150,7 @@ def closeDoor(doorClosePin):
 	#turn on door motor
 	GPIO.output(doorClosePin,1)
 	#wait a couple seconds for it to complete
-	time.sleep(1.0)
+	time.sleep(0.5)
 	#turn off motor
 	GPIO.output(doorClosePin,0)
 	return None
@@ -154,30 +159,64 @@ def openDoor(doorOpenPin):
 	#turn on door motor
 	GPIO.output(doorOpenPin,1)
 	#wait a couple seconds for it to complete
-	time.sleep(1.0)
+	time.sleep(0.5)
 	#turn off motor
 	GPIO.output(doorOpenPin,0)
 	return None
 
-#proximity
+#event detection for both IR sensors
 GPIO.add_event_detect(proximity1Pin, GPIO.BOTH, callback=proximity1_callback, bouncetime=300)
 GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2_callback, bouncetime=300)
 
 
+@app.route("/")
+def coophome():
+	#get temperature
+	temp = toStr(c_to_f(getTemp())
+	#make sure these are the globals
+	global chickenCount
+	global doorStatus
+	#pass temp, chickenCount and doorStatus to the HTML template
+	return render_template('main.html', temp=temp, chickenCount=chickenCount, doorStatus=doorStatus)
 
-while True:
-	print "Beginning count check loop"
-	print "Current chicken count is " + str(chickenCount)
-	if (doorStatus == 1):
+@app.route("/door")
+def doorToggle():
+	global doorStatus
+	if (doorStatus == 0):
+		#if door is closed, open it
+		openDoor(doorOpenPin);
 		print "Opening door"
-		openDoor(doorOpenPin)
-		doorStatus = 0
-
-	if (chickenCount >= 5 and doorStatus == 0):
-		print "Closing door"
-		closeDoor(doorClosePin)
+		#set status as open
 		doorStatus = 1
-	time.sleep(10.0)
+		#returning to console for debugging
+		return "Opened!"
+	else:
+		#if door is open
+		closeDoor(doorClosePin);
+		print "Closing door"
+		#set status
+		doorStatus = 0
+		#returning to console for debugging
+		return "Closed!"
 
+#run Flask app; replace debug=True with host='0.0.0.0' for external server access
+if __name__ == "__main__":
+	app.run(debug=True)
+
+# while True:
+# 	print "Beginning count check loop"
+# 	print "Current chicken count is " + str(chickenCount)
+# 	if (doorStatus == 1):
+# 		print "Opening door"
+# 		openDoor(doorOpenPin)
+# 		doorStatus = 0
+
+# 	if (chickenCount >= 5 and doorStatus == 0):
+# 		print "Closing door"
+# 		closeDoor(doorClosePin)
+# 		doorStatus = 1
+# 	time.sleep(10.0)
+
+#clean up GPIO usage when you quit with ctrl+C
 except KeyboardInterrupt:
 	GPIO.cleanup()

@@ -1,11 +1,23 @@
 from flask import Flask, render_template, url_for
-from sensors import getTemp, c_to_f
 app = Flask(__name__)
+
+doorStatus = 0
 
 @app.route("/")
 def coophome():
-	temp = str(c_to_f(getTemp()))
-	return render_template('main.html', temp=temp)
+	temp = 65
+	chickenCount = 3
+	return render_template('main.html', temp=temp, chickenCount=chickenCount, doorStatus=doorStatus)
+
+@app.route("/door")
+def doorToggle():
+	global doorStatus
+	if (doorStatus == 0):
+		doorStatus = 1
+		return "Opened!"
+	else:
+		doorStatus = 0
+		return "Closed!"
 
 if __name__ == "__main__":
-	app.run(host='0.0.0.0')
+	app.run(debug=True)
