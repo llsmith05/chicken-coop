@@ -42,11 +42,12 @@ RPIO.add_interrupt_callback(proximity1Pin, proximity1_callback, edge='rising', p
 
 
 while True:
-	print "Beginning count check loop"
-	print "Current chicken count is " + str(chickenCount)
+	try:
+		print "Beginning count check loop"
+		print "Current chicken count is " + str(chickenCount)
 
-	time.sleep(10.0)
+		time.sleep(10.0)
 
 #clean up GPIO usage when you quit with ctrl+C
-except KeyboardInterrupt:
+	except KeyboardInterrupt:
 	GPIO.cleanup()

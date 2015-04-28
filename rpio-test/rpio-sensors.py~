@@ -23,7 +23,7 @@ chickenCount = 0 #current number of chickens in coop
 
 def proximity1_callback(proximity1, val):
 	proximity1 += 1
-	print("gpio %s: %s\nproximity1: " + str(proximity1) + "\n"% (gpio_id, val))
+	print("gpio %s: %s\n" % (gpio_id, val))
 
 
 
