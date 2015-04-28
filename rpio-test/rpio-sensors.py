@@ -3,14 +3,14 @@ import time
 
 #pin numbers
 proximity1Pin = 20
-proximity2Pin = 16
+proximity2Pin = 20
 
 # set pins to use GPIO numbering
-RPIO.setmode(RPIO.BCM)
+#RPIO.setmode(RPIO.BCM)
 #GPIO.setwarnings(False)
 
 #pin setup
-RPIO.setup(proximity1Pin, RPIO.IN, pull_up_down=RPIO.PUD_UP)
+RPIO.setup(proximity1Pin, RPIO.IN)
 #RPIO.setup(proximity2Pin, RPIO.IN, pull_up_down=RPIO.PUD_UP)
 
 #helpful global variables
@@ -51,3 +51,4 @@ while True:
 #clean up GPIO usage when you quit with ctrl+C
 	except KeyboardInterrupt:
 		RPIO.cleanup()
+		break
