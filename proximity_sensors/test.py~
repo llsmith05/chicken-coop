@@ -6,35 +6,35 @@ proximity1Pin = 23
 proximity2Pin = 24
 
 #helpful global variables
-prox1 = 0
-prox2 = 0
+proximity1 = False
+proximity2 = False
 chickenCount = 0
 
 #setup
 GPIO.setmode(GPIO.BCM)
 
 #callback function for sensor1
-def proximity1(proximity1Pin):
+def proximity1_callback(proximity1Pin):
 	#object not detected
 	if GPIO.input(proximity1Pin):
 		#reset the global variable 
-		prox1 -= 1
+		proximity1 = False #or should it be !proximity1 ?
 		print "decrementing proximity1"
 
 	#object detected
 	else:
 		#increment the proximity 1 variable
-		prox1 += 1
+		proximity1 = True
 		print "incrementing proximity1"
 		exception = False
 
 		#proximity1 hit first
-		if proximity1 > proximity2:
+		if (proximity1 == True && proximity2 == False):
 			#wait for chicken to hit proximity2:
 			print "waiting for proximity2 to trigger..."
 			t = time.time()
 			while True:
-				if prox2 == 1:
+				if proximity2 == True:
 					print "proximity 2 triggered"
 					print "now waiting for both sensors to reset"
 					break
@@ -52,7 +52,7 @@ def proximity1(proximity1Pin):
 					print "exception detected... exiting prosimity1 callback function"
 					break
 				#wait for both sensors to reset their variables
-				if ( prox1 == 0 && prox2 == 0 ):
+				if ( proximity1 == False && proximity2 == False ):
 					#this indicates a chicken leaving
 					print "both sensors were reset! decrementing chickencount"
 					chickenCount -= 1
@@ -63,27 +63,27 @@ def proximity1(proximity1Pin):
 					print "you took too long to reset the sensors, throwing exception"
 					break
 		
-def proximity2(proximity2Pin):
+def proximity2_callback(proximity2Pin):
 	#object not detected
 	if GPIO.input(proximity2Pin):
 		#reset the global variable >>> this is probably bad
-		prox2 -= 1
+		proximity2 = False
 		print "decrementing proximity2"
 
 	#object detected
 	else:
 		#increment the proximity 2 variable
-		prox2 += 1
+		proximity2 = True
 		print "incrementing proximity 2"
 		exception = False
 
 		#proximity2 hit first
-		if prox2 > prox1:
+		if (proximity2 == True && proximity1 == False):
 			#wait for chicken to hit proximity1:
 			print "waiting for proximity1 to trigger..."
 			t = time.time()
 			while True:
-				if prox1 == 1:
+				if proximity1 == True:
 					print "proximity 1 triggered"
 					print "now waiting for both sensors to reset"
 					break
@@ -101,7 +101,7 @@ def proximity2(proximity2Pin):
 					print "exception detected in proximity2 callback...exiting"
 					break
 				#wait for both sensors to reset their variables
-				if ( prox1 == 0 && prox2 == 0 ):
+				if ( proximity1 == False && proximity2 == False ):
 					#this indicates a chicken entering
 					print "both variables were reset, incrementing chickenCount"
 					chickenCount += 1
@@ -113,8 +113,8 @@ def proximity2(proximity2Pin):
 					break
 
 #detecting change in voltage (movement through sensor)
-GPIO.add_event_detect(proximity1Pin, GPIO.BOTH, callback=proximity1, bouncetime=300)
-GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2, bouncetime=300)
+GPIO.add_event_detect(proximity1Pin, GPIO.BOTH, callback=proximity1_callback, bouncetime=300)
+GPIO.add_event_detect(proximity2Pin, GPIO.BOTH, callback=proximity2_callback, bouncetime=300)
 
 
 

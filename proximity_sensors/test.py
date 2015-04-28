@@ -49,7 +49,7 @@ def proximity1_callback(proximity1Pin):
 			while True:
 				#don't do anything to chickenCount if there was an exception
 				if ( exception ):
-					print "exception detected... exiting prosimity1 callback function"
+					print "exception detected... exiting proximity1 callback function"
 					break
 				#wait for both sensors to reset their variables
 				if ( proximity1 == False && proximity2 == False ):
