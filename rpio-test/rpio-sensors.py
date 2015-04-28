@@ -10,8 +10,8 @@ RPIO.setmode(RPIO.BCM)
 #GPIO.setwarnings(False)
 
 #pin setup
-RPIO.setup(proximity1Pin, GPIO.IN, pull_up_down=RPIO.PUD_UP)
-#RPIO.setup(proximity2Pin, GPIO.IN, pull_up_down=RPIO.PUD_UP)
+RPIO.setup(proximity1Pin, RPIO.IN, pull_up_down=RPIO.PUD_UP)
+#RPIO.setup(proximity2Pin, RPIO.IN, pull_up_down=RPIO.PUD_UP)
 
 #helpful global variables
 proximity1 = 0 #0 or 1 if sensor is triggered
@@ -50,4 +50,4 @@ while True:
 
 #clean up GPIO usage when you quit with ctrl+C
 	except KeyboardInterrupt:
-	GPIO.cleanup()
+		RPIO.cleanup()
