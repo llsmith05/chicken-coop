@@ -10,15 +10,13 @@ RPIO.setmode(RPIO.BCM)
 #GPIO.setwarnings(False)
 
 #pin setup
-def setup():
-	RPIO.setup(16, RPIO.IN)
+RPIO.setup(16, RPIO.IN)
 #RPIO.setup(proximity2Pin, RPIO.IN, pull_up_down=RPIO.PUD_UP)
 
 #helpful global variables
 proximity1 = 0 #0 or 1 if sensor is triggered
 proximity2 = 0 #0 or 1 if sensor is triggered
 chickenCount = 0 #current number of chickens in coop
-
 
 
 
@@ -30,10 +28,6 @@ def proximity1_callback(proximity1, val):
 
 
 RPIO.add_interrupt_callback(proximity1Pin, proximity1_callback, edge='rising', pull_up_down=RPIO.PUD_UP, threaded_callback=True, debounce_timeout_ms=200)
-
-
-
-
 
 
 

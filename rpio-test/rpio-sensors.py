@@ -10,8 +10,7 @@ RPIO.setmode(RPIO.BCM)
 #GPIO.setwarnings(False)
 
 #pin setup
-def setup():
-	RPIO.setup(16, RPIO.IN)
+RPIO.setup(16, RPIO.IN)
 #RPIO.setup(proximity2Pin, RPIO.IN, pull_up_down=RPIO.PUD_UP)
 
 #helpful global variables
@@ -19,7 +18,7 @@ proximity1 = 0 #0 or 1 if sensor is triggered
 proximity2 = 0 #0 or 1 if sensor is triggered
 chickenCount = 0 #current number of chickens in coop
 
-
+#https://github.com/CorCornelisse/RPIO/commit/7c35b162ab07737db8775ef3f3c459c7e53ffffa
 
 def proximity1_callback(proximity1, val):
 	proximity1 += 1
