@@ -26,6 +26,8 @@ def proximity1_callback(gpio_id, val):
 	global proximity2
 	global chickenCount
 
+	exception = False
+
 	#object not detected
 	if(val == 1):
 		#reset the corresponding global variable
@@ -34,12 +36,10 @@ def proximity1_callback(gpio_id, val):
 
 	#object detected
 	#NOTE: think about putting '&& proximity1 == False' in the conditional
-	else if(val == 0):
+	elif(val == 0):
 		#indicate a change in state
 		proximity1 = True
 		print "\nproximity1 activated; changing state variable\n"
-
-		exception = false
 
 		#proximity1 hit first
 		if( proximity1 == True and proximity2 == False ):
@@ -51,6 +51,7 @@ def proximity1_callback(gpio_id, val):
 				if( proximity2 == True ):
 					print "\nproximity2 triggered\n"
 					print "now waiting for both sensors to reset"
+					break
 				if( (time.time()-t) >= 5 ):
 					exception = True
 					print "took to long to activate proximity2, throwing exception"
@@ -76,12 +77,18 @@ def proximity1_callback(gpio_id, val):
 					print "took too long to reset the sensors, throwing exception"
 					break
 	else:
-		return
+		exception = True
+
+	if(exception == True):
+		proximity1 = False
+		proximity2 = False
 
 def proximity2_callback(gpio_id, val):
 	global proximity1
 	global proximity2
 	global chickenCount
+
+	exception = False
 
 	#object not detected
 	if(val == 1):
@@ -91,12 +98,10 @@ def proximity2_callback(gpio_id, val):
 
 	#object detected
 	#NOTE: think about putting '&& proximity2 == False' in the conditional
-	else if(val == 0):
+	elif(val == 0):
 		#indicate a change in state
 		proximity2 = True
 		print "\nproximity2 activated; changing state variable\n"
-
-		exception = false
 
 		#proximity2 hit first
 		if( proximity2 == True and proximity1 == False ):
@@ -108,6 +113,7 @@ def proximity2_callback(gpio_id, val):
 				if( proximity1 == True ):
 					print "\nproximity1 triggered\n"
 					print "now waiting for both sensors to reset"
+					break
 				if( (time.time()-t) >= 5 ):
 					exception = True
 					print "took to long to activate proximity1, throwing exception"
@@ -123,8 +129,8 @@ def proximity2_callback(gpio_id, val):
 
 				#wait for both sensors to reset their variables
 				if( proximity2 == False and proximity1 == False ):
-					print "both sensors were reset! decrementing chickenCount"
-					chickenCount -= 1
+					print "both sensors were reset! incrementing chickenCount"
+					chickenCount += 1
 					break
 
 				#only wait 5 sec
@@ -133,7 +139,11 @@ def proximity2_callback(gpio_id, val):
 					print "took too long to reset the sensors, throwing exception"
 					break
 	else:
-		return
+		exception = True
+
+	if( exception == True ):
+		proximity1 = False
+		proximity2 = False
 
 
 	
