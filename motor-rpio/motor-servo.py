@@ -8,7 +8,7 @@ doorClosePin = 18
 
 def doorOpen():
 	servo.set_servo(doorOpenPin, 1000)
-	time.sleep(3.0)
+	time.sleep(1.0)
 	servo.stop_servo(doorOpenPin)
 
 while True:

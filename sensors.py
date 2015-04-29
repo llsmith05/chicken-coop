@@ -9,8 +9,8 @@ app = Flask(__name__)
 #pin numbers
 proximity1Pin = 20
 proximity2Pin = 16
-doorOpenPin = 17 #check that this is accurate
-doorClosePin = 18 #same here
+doorOpenPin = 17
+doorClosePin = 18
 
 # set pins to use RPIO numbering
 RPIO.setmode(RPIO.BCM)
@@ -189,6 +189,12 @@ def openDoor(doorOpenPin):
 	RPIO.output(doorOpenPin,0)
 	return None
 
+def getCount():
+	return chickenCount
+
+def getDoorStatus():
+	return doorStatus
+
 #interrupt detection for both IR sensors
 RPIO.add_interrupt_callback(proximity1Pin, proximity1_callback, threaded_callback=True, debounce_timeout_ms=200)
 
@@ -203,12 +209,11 @@ RPIO.wait_for_interrupts(threaded=True)
 @app.route("/")
 def coophome():
 	#get temperature
-	temp = toStr(c_to_f(getTemp())
-	#make sure these are the globals
-	#global chickenCount
-	#global doorStatus
-	#pass temp, chickenCount and doorStatus to the HTML template
-	return (render_template('main.html', temp=temp, chickenCount=chickenCount, doorStatus=doorStatus))
+	temp = c_to_f(getTemp())
+	chickens = getCount()
+	door = getDoorStatus()
+	#pass temp, chickens and door to the HTML template
+	return render_template('main.html', temp=temp, chickenCount=chickens, doorStatus=door)
 
 @app.route("/door")
 def doorToggle():
@@ -232,7 +237,7 @@ def doorToggle():
 
 #run Flask app; replace debug=True with host='0.0.0.0' for external server access
 if __name__ == "__main__":
-	app.run(debug=True)
+	app.run(host='0.0.0.0')
 
 # while True:
 # 	print "Beginning count check loop"
@@ -249,5 +254,5 @@ if __name__ == "__main__":
 # 	time.sleep(10.0)
 
 #clean up RPIO usage when you quit with ctrl+C
-except KeyboardInterrupt:
-	RPIO.cleanup()
+#except KeyboardInterrupt:
+RPIO.cleanup()
