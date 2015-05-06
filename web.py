@@ -1,14 +1,27 @@
 from flask import Flask, render_template, url_for
+import sqlite3 as lite
+import sys
+#from myrpio import getchickenCount
 app = Flask(__name__)
 
-doorStatus = 0
-chickenCount = 3
-temp = 65
+#con = None
+
+#doorStatus
+#chickenCount
+#temp = 65
 
 @app.route("/")
 def coophome():
-	global chickenCount
-	global temp
+	con = lite.connect('coop.db')
+
+	with con:
+		cur = con.cursor()
+		cur.execute("SELECT * FROM coop_data WHERE id=(SELECT max(id) FROM coop_data)")
+		row = cur.fetchone()
+		
+		chickenCount = row[1]
+		temp = row[2]
+		doorStatus = row[3]
 	return render_template('main.html', temp=temp, chickenCount=chickenCount, doorStatus=doorStatus)
 
 @app.route("/door")
@@ -22,4 +35,4 @@ def doorToggle():
 		return "Closed!"
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0")
+	app.run(host='0.0.0.0')
